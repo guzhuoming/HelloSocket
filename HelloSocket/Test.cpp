@@ -64,7 +64,7 @@ int main()
 	// 6 关闭套接字closesocket
 	closesocket(_sock);
 	//------------------------
-	//清楚Windows socket环境
+	//清除Windows socket环境
 	WSACleanup();
 	return 0;
 }
