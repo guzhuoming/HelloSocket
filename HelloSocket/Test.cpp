@@ -18,7 +18,10 @@ int main()
 	SOCKET _sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (INVALID_SOCKET == _sock)
 	{
-		printf("错误，建立SOCKET失败...\n");
+		printf("错误，建立Socket失败...\n");
+	}
+	else {
+		printf("成功，建立Socket成功...\n");
 	}
 	// 2 bind 绑定用于接受客户端连接的网络端口
 	sockaddr_in _sin = {};
