@@ -1,4 +1,5 @@
 #define WIN_32_LEAN_AND_MEAN
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include<WinSock2.h>
 #include<Windows.h>
 #include<stdio.h>
@@ -40,14 +41,19 @@ int main()
 	sockaddr_in clientAddr = {};
 	int nAddrLen = sizeof(sockaddr_in);
 	SOCKET _cSock = INVALID_SOCKET;
-	_cSock = accept(_sock, (sockaddr*)&clientAddr, &nAddrLen);
-	if (INVALID_SOCKET == _cSock) 
-	{
-		printf("错误，接收到无效客户端SOCKET...\n");
-	}
-	// 5 send 向客户端发送一条数据
 	char msgBuf[] = "Hello, I'm Server.";
-	send(_cSock, msgBuf, strlen(msgBuf)+1, 0);
+	while (true) 
+	{
+		_cSock = accept(_sock, (sockaddr*)&clientAddr, &nAddrLen);
+		if (INVALID_SOCKET == _cSock)
+		{
+			printf("错误，接收到无效客户端SOCKET...\n");
+		}
+		printf("新客户端加入：IP = %s \n", inet_ntoa(clientAddr.sin_addr));
+		// 5 send 向客户端发送一条数据
+		send(_cSock, msgBuf, strlen(msgBuf) + 1, 0);
+	}
+
 	// 6 关闭套接字closesocket
 	closesocket(_sock);
 	//------------------------
