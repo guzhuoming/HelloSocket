@@ -28,7 +28,7 @@ int main()
 	_sin.sin_family = AF_INET;
 	_sin.sin_port = htons(4567);//host to net unsigned short
 	_sin.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-	int ret = (_sock, (sockaddr*)&_sin, sizeof(sockaddr_in));
+	int ret = connect(_sock, (sockaddr*)&_sin, sizeof(sockaddr_in));
 	if (SOCKET_ERROR == ret)
 	{
 		printf("错误，连接服务器失败...\n");
@@ -49,5 +49,6 @@ int main()
 	//------------------------
 	//清除Windows socket环境
 	WSACleanup();
+	getchar();
 	return 0;
 }

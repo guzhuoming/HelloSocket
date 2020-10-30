@@ -28,8 +28,8 @@ int main()
 	_sin.sin_family = AF_INET;
 	_sin.sin_port = htons(4567);//host to net unsigned short
 	_sin.sin_addr.S_un.S_addr = INADDR_ANY;//inet_addr("127.0.0.1");
-	bind(_sock, (sockaddr*)&_sin, sizeof(_sin));
-	if (SOCKET_ERROR == bind(_sock, (sockaddr*)&_sin, sizeof(sockaddr_in)))
+	//bind(_sock, (sockaddr*)&_sin, sizeof(sockaddr_in));
+	if (SOCKET_ERROR == bind(_sock, (sockaddr*)&_sin, sizeof(_sin)))
 	{
 		printf("错误，绑定网络端口失败...\n");
 	}
@@ -39,10 +39,10 @@ int main()
 	// 3 listen 监听网络端口
 	if (SOCKET_ERROR == listen(_sock, 5))
 	{
-		printf("错误，绑定网络端口失败...\n");
+		printf("错误，监听网络端口失败...\n");
 	}
 	else {
-		printf("绑定网络端口成功...\n");
+		printf("监听网络端口成功...\n");
 	}
 	// 4 accept 等待接受客户端连接
 	sockaddr_in clientAddr = {};
