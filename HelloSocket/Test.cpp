@@ -16,6 +16,10 @@ int main()
 	//-- 用Socket API建立简易TCP服务端
 	// 1 建立一个socket套接字
 	SOCKET _sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (INVALID_SOCKET == _sock)
+	{
+		printf("错误，建立SOCKET失败...\n");
+	}
 	// 2 bind 绑定用于接受客户端连接的网络端口
 	sockaddr_in _sin = {};
 	_sin.sin_family = AF_INET;
