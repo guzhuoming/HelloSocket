@@ -3,6 +3,7 @@
 #include<WinSock2.h>
 #include<Windows.h>
 #include<stdio.h>
+#pragma warning(disable:4996) //scanf报错
 
 #pragma comment(lib, "ws2_32.lib")
 int main()
@@ -36,15 +37,31 @@ int main()
 	else {
 		printf("连接服务器成功...\n");
 	}
-	
-	// 3 接收服务器信息 recv
-	char recvBuf[256] = {};
-	int nlen = recv(_sock, recvBuf, 256, 0);
-	if (nlen > 0)
+	while (true)
 	{
-		printf("接收到数据：%s \n", recvBuf);
+		// 3 输入请求命令
+		char cmdBuf[128] = {};
+		scanf("%s", cmdBuf);
+		// 4 处理请求命令
+		if (0 == strcmp(cmdBuf, "exit"))
+		{
+			printf("收到exit命令，任务结束。");
+			break;
+		}
+		else {
+			// 5 向服务器发送请求命令
+			send(_sock, cmdBuf, strlen(cmdBuf) + 1, 0);
+		}
+		// 6 接收服务器信息 recv
+		char recvBuf[128] = {};
+		int nlen = recv(_sock, recvBuf, 256, 0);
+		if (nlen > 0)
+		{
+			printf("接收到数据：%s \n", recvBuf);
+		}
 	}
-	// 4 关闭套接字 closesocket
+	
+	// 7 关闭套接字 closesocket
 	closesocket(_sock);
 	//------------------------
 	//清除Windows socket环境
