@@ -6,10 +6,38 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-struct DataPackage
+enum CMD
 {
-	int age;
-	char name[32];
+	CMD_LOGIN,
+	CMD_LOGOUT,
+	CMD_ERROR
+};
+
+struct DataHeader
+{
+	short dataLength;
+	short cmd;
+};
+
+struct Login
+{
+	char userName[32];
+	char PassWord[32];
+};
+
+struct LoginResult
+{
+	int result;
+};
+
+struct Logout
+{
+	char userName[32];
+};
+
+struct LogoutResult
+{
+	int result;
 };
 
 int main()
@@ -67,24 +95,42 @@ int main()
 	char _recvBuf [128] = {};
 	while (true)
 	{	
+		DataHeader header = {};
 		// 5 接收客户端数据
-		int nLen = recv(_cSock, _recvBuf, 128, 0);
+		int nLen = recv(_cSock, (char*)&header, sizeof(header), 0);
 		if (nLen <= 0) 
 		{	
 			printf("客户端已退出，任务结束。");
 			break;
 		}
-		// 6 处理请求
-		if (0 == strcmp(_recvBuf, "getInfo"))
-		{
-			// 7 send 向客户端发送一条数据
-			DataPackage dp = {80, "Leslie"};
-			send(_cSock, (const char*)&dp, sizeof(DataPackage), 0);
-		}
-		else {
-			char msgBuf[] = "???.";
-			// 7 send 向客户端发送一条数据
-			send(_cSock, msgBuf, strlen(msgBuf) + 1, 0);
+		printf("收到命令：%d, 数据长度：%d\n", header.cmd, header.dataLength);
+		switch (header.cmd) {
+			case CMD_LOGIN:
+			{
+				Login login = {};
+				recv(_cSock, (char*)&login, sizeof(Login), 0);
+				// 忽略判断用户密码是否正确的过程
+				LoginResult ret = { 0 };
+				send(_cSock, (char*)&header, sizeof(DataHeader), 0);
+				send(_cSock, (char*)&ret, sizeof(LoginResult), 0);
+			}
+			break;
+			case CMD_LOGOUT:
+			{
+				Logout logout = {};
+				recv(_cSock, (char*)&logout, sizeof(Login), 0);
+				// 忽略判断用户密码是否正确的过程
+				LoginResult ret = { 1 };
+				send(_cSock, (char*)&header, sizeof(header), 0);
+				send(_cSock, (char*)&ret, sizeof(ret), 0);
+			}
+			break;
+			default:
+				header.cmd = CMD_ERROR;
+				header.dataLength = 0;
+				send(_cSock, (char*)&header, sizeof(header), 0);
+
+			break;
 		}
 	}
 
