@@ -6,6 +6,13 @@
 #pragma warning(disable:4996) //scanf报错
 
 #pragma comment(lib, "ws2_32.lib")
+
+struct DataPackage
+{
+	int age;
+	char name[32];
+};
+
 int main()
 {
 	//启动Windows socket 2.x环境
@@ -54,10 +61,11 @@ int main()
 		}
 		// 6 接收服务器信息 recv
 		char recvBuf[128] = {};
-		int nlen = recv(_sock, recvBuf, 256, 0);
+		int nlen = recv(_sock, recvBuf, 128, 0);
 		if (nlen > 0)
 		{
-			printf("接收到数据：%s \n", recvBuf);
+			DataPackage* dp = (DataPackage*)recvBuf;
+			printf("接收到数据：年龄=%d , 姓名=%s\n", dp->age, dp->name);
 		}
 	}
 	
