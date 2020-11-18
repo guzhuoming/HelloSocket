@@ -13,6 +13,7 @@ enum CMD
 	CMD_LOGIN_RESULT,
 	CMD_LOGOUT,
 	CMD_LOGOUT_RESULT,
+	CMD_NEW_USER_JOIN,
 	CMD_ERROR
 };
 
@@ -61,6 +62,16 @@ struct LogoutResult: public DataHeader
 	int result;
 };
 
+struct NewUserJoin : public DataHeader
+{
+	NewUserJoin() {
+		dataLength = sizeof(NewUserJoin);
+		cmd = CMD_NEW_USER_JOIN;
+		scok = 0;
+	}
+	int scok;
+};
+
 vector<SOCKET> g_clients;
 
 int processor(SOCKET _cSock) 
@@ -72,36 +83,36 @@ int processor(SOCKET _cSock)
 	DataHeader* header = (DataHeader*)szRecv;
 	if (nLen <= 0)
 	{
-		printf("客户端已退出，任务结束。");
+		printf("客户端<Socket=%d>已退出，任务结束。\n", _cSock);
 		return -1;
 	}
 	switch (header->cmd) {
-	case CMD_LOGIN:
-	{
-		recv(_cSock, szRecv + sizeof(DataHeader), header->dataLength - sizeof(DataHeader), 0);
-		Login* login = (Login*)szRecv;
-		printf("收到命令：CMD_LOGIN, 数据长度：%d , userName = %s , PassWord = %s\n", login->dataLength, login->userName, login->PassWord);
-		// 忽略判断用户密码是否正确的过程
-		LoginResult ret;
-		send(_cSock, (char*)&ret, sizeof(LoginResult), 0);
-	}
-	break;
-	case CMD_LOGOUT:
-	{
-		recv(_cSock, szRecv + sizeof(DataHeader), header->dataLength - sizeof(DataHeader), 0);
-		Logout* logout = (Logout*)szRecv;
-		printf("收到命令：CMD_LOGOUT, 数据长度：%d , userName = %s\n", logout->dataLength, logout->userName);
-		// 忽略判断用户密码是否正确的过程
-		LoginResult ret;
-		send(_cSock, (char*)&ret, sizeof(ret), 0);
-	}
-	break;
-	default:
-	{
-		DataHeader header = { 0, CMD_ERROR };
-		send(_cSock, (char*)&header, sizeof(header), 0);
-	}
-	break;
+		case CMD_LOGIN:
+		{
+			recv(_cSock, szRecv + sizeof(DataHeader), header->dataLength - sizeof(DataHeader), 0);
+			Login* login = (Login*)szRecv;
+			printf("收到客户端<Socket=%d>命令：CMD_LOGIN, 数据长度：%d , userName = %s , PassWord = %s\n", _cSock, login->dataLength, login->userName, login->PassWord);
+			// 忽略判断用户密码是否正确的过程
+			LoginResult ret;
+			send(_cSock, (char*)&ret, sizeof(LoginResult), 0);
+		}
+		break;
+		case CMD_LOGOUT:
+		{
+			recv(_cSock, szRecv + sizeof(DataHeader), header->dataLength - sizeof(DataHeader), 0);
+			Logout* logout = (Logout*)szRecv;
+			printf("收到客户端<Socket=%d>命令：CMD_LOGOUT, 数据长度：%d , userName = %s\n", _cSock, logout->dataLength, logout->userName);
+			// 忽略判断用户密码是否正确的过程
+			LoginResult ret;
+			send(_cSock, (char*)&ret, sizeof(ret), 0);
+		}
+		break;
+		default:
+		{
+			DataHeader header = { 0, CMD_ERROR };
+			send(_cSock, (char*)&header, sizeof(header), 0);
+		}
+		break;
 	}
 }
 
@@ -166,7 +177,7 @@ int main()
 
 		// nfds 是一个整数值，是指fd_set集合中所有描述符(socket)的范围，而不是数量，
 		// 即所有文件描述符的最大值+1，在windows中这个参数可以写0
-		timeval t = {0, 0};
+		timeval t = {1, 0};
 		int ret = select(_sock + 1, &fdRead, &fdWrite, &fdExp, &t);
 		if (ret < 0) 
 		{
@@ -187,6 +198,11 @@ int main()
 			{
 				printf("错误，接收到无效客户端SOCKET...\n");
 			}
+			for (int n = (int)g_clients.size() - 1; n >= 0; n--)
+			{
+				NewUserJoin userjoin;
+				send(g_clients[n], (const char*)&userjoin, sizeof(NewUserJoin), 0);
+			}
 			g_clients.push_back(_cSock);
 			printf("新客户端加入：socket = %d, IP = %s \n", _cSock, inet_ntoa(clientAddr.sin_addr));
 		}
@@ -199,7 +215,7 @@ int main()
 				}
 			}
 		}
-		
+		printf("空闲时间处理其他业务..\n");
 	}
 	
 	for (int n = g_clients.size() - 1; n >= 0 ; n--)
