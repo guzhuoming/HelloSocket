@@ -215,7 +215,7 @@ int main()
 				}
 			}
 		}
-		printf("空闲时间处理其他业务..\n");
+		//printf("空闲时间处理其他业务..\n");
 	}
 	
 	for (int n = g_clients.size() - 1; n >= 0 ; n--)
