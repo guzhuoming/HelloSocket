@@ -2,23 +2,24 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #ifdef _WIN32
-#include<WinSock2.h>
-#include<Windows.h>
+	#include<WinSock2.h>
+	#include<Windows.h>
+	#pragma comment(lib, "ws2_32.lib")
 #else
-#include<unistd.h> //uni std
-#include<arpa/inet.h>
-#include<string.h>
+	#include<unistd.h> //uni std
+	#include<arpa/inet.h>
+	#include<string.h>
 
-#define SOCKET int
-#define INVALID_SOCKET  (SOCKET)(~0)
-#define SOCKET_ERROR            (-1)
+	#define SOCKET int
+	#define INVALID_SOCKET  (SOCKET)(~0)
+	#define SOCKET_ERROR            (-1)
 #endif
 
 #include<stdio.h>
 #include<thread>
 #pragma warning(disable:4996) //scanf±¨´í
 using namespace std;
-#pragma comment(lib, "ws2_32.lib")
+
 
 enum CMD
 {
@@ -186,7 +187,7 @@ int main()
 	_sin.sin_family = AF_INET;
 	_sin.sin_port = htons(4567);//host to net unsigned short
 #ifdef _WIN32
-	_sin.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+	_sin.sin_addr.S_un.S_addr = inet_addr("192.168.182.128");
 #else
 	_sin.sin_addr.s_addr = inet_addr("192.168.182.1");
 #endif
