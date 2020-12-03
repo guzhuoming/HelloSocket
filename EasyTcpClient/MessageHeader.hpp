@@ -1,3 +1,6 @@
+#ifndef _MessageHeader_hpp_
+#define _MessageHeader_hpp_
+
 enum CMD
 {
 	CMD_LOGIN,
@@ -62,3 +65,5 @@ struct NewUserJoin : public DataHeader
 	}
 	int scok;
 };
+
+#endif // !_MessageHeader_hpp_
