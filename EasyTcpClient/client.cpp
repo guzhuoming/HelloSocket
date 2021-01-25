@@ -19,10 +19,10 @@ void cmdThread(EasyTcpClient* client)
 		}
 		else if (0 == strcmp(cmdBuf, "login"))
 		{
-			//Login login;
-			//strcpy(login.userName, "gzm");
-			//strcpy(login.PassWord, "gzmmm");
-			//client->SendData(&login);
+			Login login;
+			strcpy(login.userName, "gzm");
+			strcpy(login.PassWord, "gzmmm");
+			client->SendData(&login);
 			//Sleep(1000);
 		}
 		else if (0 == strcmp(cmdBuf, "logout"))
@@ -43,31 +43,21 @@ int main()
 	//client.InitSocket();
 	client.Connect("192.168.182.1", 4567);
 
-	EasyTcpClient client2;
-	////client.InitSocket();
-	client2.Connect("192.168.182.1", 4568);
-
 	// 启动UI线程
-	//thread t1(cmdThread, &client);
-	//t1.detach();
+	thread t1(cmdThread, &client);
+	t1.detach();
 
-	//thread t2(cmdThread, &client2);
-	//t2.detach();
-
-	Login login;
+	/*Login login;
 	strcpy(login.userName, "gzm");
-	strcpy(login.PassWord, "gzmmm");
-	while (client.isRun()||client2.isRun())
+	strcpy(login.PassWord, "gzmmm");*/
+	while (client.isRun())
 	{
 		client.OnRun();
-		client2.OnRun();
 		//printf("空闲时间处理其他业务..\n");
 		
-		client.SendData(&login);
-		client2.SendData(&login);
+		//client.SendData(&login);
 	}
 	client.Close();
-	client2.Close();
 
 	printf("已退出。\n");
 	getchar();
